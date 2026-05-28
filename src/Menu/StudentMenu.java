@@ -2,15 +2,19 @@ package Menu;
 import Model.Attendance;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
+import Model.Semester;
 import Model.Student;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
+import static Helper.AttendanceHelper.semPercentage;
+
+
 
 public class StudentMenu
 {
-    public static void studentLogin(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances)
+    public static void studentLogin(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances, Semester sem)
     {
         while (true)
         {
@@ -32,7 +36,7 @@ public class StudentMenu
                     register(scan, students);
                     break;
                 case 2:
-                    login(scan, students, attendances);
+                    login(scan, students, attendances,sem);
                     break;
                 case 0:
                     System.out.println(" Returning to Main menu..");
@@ -82,7 +86,7 @@ public class StudentMenu
 
          while(true)
          {
-             System.out.println("Enter your Department ( CSE / IT / ECE / MECH / CIVIL / EEE / AUTOMOBILE / AGRI ) : ");
+             System.out.println(" Enter your Department ( CSE / IT / ECE / MECH / CIVIL / EEE / AUTOMOBILE / AGRI ) : ");
              String dept = scan.nextLine().toUpperCase();
              try
              {
@@ -120,7 +124,7 @@ public class StudentMenu
         students.add(s);
     }
 
-    private static void login(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances)
+    private static void login(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances, Semester sem)
     {
         System.out.println("Enter your register number: ");
         String registerNumber = scan.nextLine();
@@ -134,7 +138,7 @@ public class StudentMenu
             if (s.getRegisterNumber().equals(registerNumber) && s.getPassword().equals(password))
             {
                 System.out.println("Login Successful");
-                studentDashboard(scan, s, attendances);
+                studentDashboard(scan, s, attendances,sem);
                 found = true;
                 break;
             }
@@ -145,7 +149,7 @@ public class StudentMenu
         }
     }
 
-    private static void studentDashboard(Scanner scan, Student s, ArrayList<Attendance> attendances)
+    private static void studentDashboard(Scanner scan, Student s, ArrayList<Attendance> attendances, Semester sem)
     {
         while (true)
         {
@@ -155,7 +159,7 @@ public class StudentMenu
 
             System.out.println(" 1. Today Status ");
             System.out.println(" 2. View Attendance percentage ( This Month ) ");
-            System.out.println(" 3. View Attendance Percentage ( This Semaster ) ");
+            System.out.println(" 3. View Attendance Percentage ( This Semester ) ");
             System.out.println(" 4. View Profile ");
             System.out.println(" 5. Change password ");
             System.out.println(" 6. Logout ");
@@ -173,7 +177,7 @@ public class StudentMenu
                     monthlyPercentage(attendances,s);
                     break;
                 case 3:
-                    semPercentage();
+                     viewSemPercentage(attendances,sem,s);
                     break;
                 case 4:
                     viewProfile(s);
@@ -190,6 +194,7 @@ public class StudentMenu
             }
         }
     }
+
     private static void todayStatus(ArrayList<Attendance> attendances, Student s)
     {
         LocalDate today = LocalDate.now();
@@ -242,15 +247,15 @@ public class StudentMenu
         }
         else
         {
-            double percentage = (presentCount * 100.0) / totalDays;
+            int percentage = (presentCount * 100) / totalDays;
             System.out.println("Your Monthly Percentage is : " + percentage +"%");
         }
     }
 
-    private static void semPercentage()
+    private static void viewSemPercentage(ArrayList<Attendance>attendances, Semester sem, Student s)
     {
-
-
+        int percentage = semPercentage(attendances,sem,s);
+        System.out.println("This Semester Percentage "+percentage);
     }
 
     private static void viewProfile(Student s)

@@ -6,13 +6,15 @@ import java.util.ArrayList;
 import Model.Attendance;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
+import Model.Semester;
 import Model.Staff;
 import Model.Student;
+import static Helper.AttendanceHelper.semPercentage;
 
 
 public class StaffMenu
 {
-    public static void stafflogin (Scanner scan, ArrayList<Staff>staffs, ArrayList<Student>students, ArrayList<Attendance>attendances)
+    public static void stafflogin (Scanner scan, ArrayList<Staff>staffs, ArrayList<Student>students, ArrayList<Attendance>attendances, Semester sem)
     {
         while(true)
         {
@@ -34,7 +36,7 @@ public class StaffMenu
                     register(scan, staffs);
                     break;
                 case 2:
-                    login(scan, staffs,students,attendances);
+                    login(scan, staffs,students,attendances,sem);
                     break;
                 case 0:
                     System.out.println("Returning main menu..");
@@ -45,6 +47,7 @@ public class StaffMenu
             }
         }
     }
+
     private static void register(Scanner scan , ArrayList<Staff>staffs)
     {
         System.out.println("Enter your name : ");
@@ -52,6 +55,15 @@ public class StaffMenu
 
         System.out.println("Enter your id : ");
         String id = scan.nextLine();
+
+        for(Staff s:staffs)
+        {
+            if(s.getId().equals(id))
+            {
+                System.out.println("This id already Registerd !");
+                return;
+            }
+        }
 
         System.out.println("Enter your password : ");
         String password = scan.nextLine();
@@ -99,10 +111,11 @@ public class StaffMenu
          System.out.println(" Registration Succesfull ");
 
         Staff s1 = new Staff(name,id,password,department,year,gender);
+
         staffs.add(s1);
     }
 
-    private static void login(Scanner scan,ArrayList<Staff>staffs,ArrayList<Student>students,ArrayList<Attendance>attendaces)
+    private static void login(Scanner scan, ArrayList<Staff>staffs, ArrayList<Student>students, ArrayList<Attendance>attendaces, Semester sem)
     {
        System.out.println("Enter your id : ");
        String id = scan.nextLine();
@@ -117,7 +130,7 @@ public class StaffMenu
            if(s1.getId().equals(id) && s1.getPassword().equals(password))
            {
                System.out.println("Login Succesfully ");
-               StaffDashboard(scan,s1,students,attendaces);
+               StaffDashboard(scan,s1,students,attendaces,sem);
 
                found = true;
                break;
@@ -129,7 +142,7 @@ public class StaffMenu
        }
     }
 
-    private static void StaffDashboard(Scanner scan,Staff s1,ArrayList<Student>students,ArrayList<Attendance>attendances)
+    private static void StaffDashboard(Scanner scan, Staff s1, ArrayList<Student>students, ArrayList<Attendance>attendances, Semester sem)
     {
         while(true)
         {
@@ -165,10 +178,10 @@ public class StaffMenu
                     deleteStudent(scan,students);
                     break;
                 case 5:
-                    editAttendance(scan,attendances,students);
+                    editAttendance(scan,attendances);
                     break;
                 case 6:
-                    viewBelow75percentage();
+                    viewBelow75percentage(attendances,sem,students,s1);
                     break;
                 case 7:
                     updateStudentProfile(students,scan);
@@ -183,18 +196,62 @@ public class StaffMenu
     private static void takeAttendance(Scanner scan,ArrayList<Student>students,ArrayList<Attendance>attendances,Staff s1)
     {
         LocalDate today = LocalDate.now();
+        boolean studentFound = false;
 
         for(Student s :students)
         {
             if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equalsIgnoreCase(s.getYear()))
             {
-            System.out.println(s.getName()+" - PRESENT  ||  ABSENT ");
-            String status = scan.nextLine();
-            boolean present = status.equalsIgnoreCase("present");
-            Attendance  a = new Attendance(today,s.getRegisterNumber(),s.getName(),present);
-            attendances.add(a);
-            }
+                studentFound = true;
 
+                boolean attendanceMarked = false;
+
+                for (Attendance a : attendances)
+                {
+                    if (a.getStudentRegNumber().equals(s.getRegisterNumber()) && a.getDate().equals(today))
+                    {
+                        attendanceMarked = true;
+                        break;
+                    }
+                }
+                if (attendanceMarked)
+                {
+                    System.out.println(s.getName() + " - Attendance already Marked today ");
+                    continue;
+                }
+
+                boolean present;
+
+                while (true)
+                {
+                    System.out.println( s.getName() + " -  PRESENT  || ABSENT ");
+                    String input = scan.nextLine().trim();
+
+                    if(input.equalsIgnoreCase("present"))
+                    {
+                        present = true;
+                        break;
+                    }
+                    else if(input.equalsIgnoreCase("absent"))
+                    {
+                        present = false;
+                        break;
+                    }
+                    else
+                    {
+                        System.out.println("Invalid Input  Enter Present or Absent only..");
+                    }
+                }
+
+                Attendance a = new Attendance(today,s.getRegisterNumber(),s.getName(),present);
+                attendances.add(a);
+                System.out.println("Attendance marked for "+s.getName());
+            }
+        }
+
+        if(!studentFound)
+        {
+            System.out.println("No student assigned for this advisor ");
         }
     }
 
@@ -267,18 +324,20 @@ public class StaffMenu
       System.out.println("Enter the registernumber:");
       String reg = scan.nextLine();
 
-        for(Student s : students)
+        for(int i = 0; i < students.size(); i++)
         {
-          if (s.getRegisterNumber().equals(reg))
-          {
-             students.remove(s);
-             System.out.println("Student deleted");
-             break;
-          }
-       }
+            if(students.get(i).getRegisterNumber().equals(reg))
+            {
+                students.remove(i);
+
+                System.out.println("Student deleted");
+
+                break;
+            }
+        }
     }
 
-    private static void editAttendance(Scanner scan,ArrayList<Attendance>attendances,ArrayList<Student>students)
+    private static void editAttendance(Scanner scan,ArrayList<Attendance>attendances)
     {
             System.out.println("Enter the RegisterNumber :");
             String reg = scan.nextLine();
@@ -301,9 +360,20 @@ public class StaffMenu
                 }
      }
 
-    private static void viewBelow75percentage()
+    private static void viewBelow75percentage(ArrayList<Attendance>attendances, Semester sem, ArrayList<Student>students, Staff s1)
     {
+        for(Student s:students)
+        {
+            if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equalsIgnoreCase(s.getYear()))
+            {
+              int percentage = semPercentage(attendances,sem,s);
 
+              if(percentage<75)
+              {
+              System.out.println(s.getName()+"Percentage :"+percentage);
+              }
+            }
+        }
     }
 
     private static void updateStudentProfile(ArrayList<Student>students,Scanner scan)
