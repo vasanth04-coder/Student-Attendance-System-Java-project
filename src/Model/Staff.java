@@ -1,24 +1,29 @@
 package Model;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
+import Model.Enum.Years;
 
 public class Staff
 {
     private String name ;
     private String id;
     private String password;
-    private Departments advisorOfDepartment;
-    private String advisorOfYear;
     private Gender gender;
+    private boolean approvel;
 
-    public Staff(String name,String id,String password,Departments advisorOfDepartment,String advisorOfYear,Gender gender)
+    private Departments advisorOfDepartment;
+    private  Years advisorOfYear;
+
+    public Staff(String name,String id,String password,Gender gender,boolean approvel)
     {
         this.name = name;
         this.id = id;
         this.password = password;
-        this.advisorOfDepartment = advisorOfDepartment;
-        this.advisorOfYear = advisorOfYear;
         this.gender = gender;
+        this.approvel = isApprovel();
+
+        this.advisorOfDepartment = null;
+        this.advisorOfYear = null;
     }
 
     // Getters
@@ -39,13 +44,17 @@ public class Staff
     {
         return advisorOfDepartment;
     }
-    public String getAdvisorOfYear()
+    public Years getAdvisorOfYear()
     {
         return advisorOfYear;
     }
     public Gender getGender()
     {
         return gender;
+    }
+    public boolean isApprovel()
+    {
+        return approvel;
     }
 
 
@@ -70,13 +79,17 @@ public class Staff
     {
         this.advisorOfDepartment = advisorOfDepartment;
     }
-    public void setAdvisorOfClass(String advisorOfYear)
+    public void setAdvisorOfClass(Years advisorOfYear)
     {
         this.advisorOfYear = advisorOfYear;
     }
     public void setGender(Gender gender)
     {
         this.gender = gender;
+    }
+    public void setApprovel(boolean approvel)
+    {
+        this.approvel = approvel;
     }
 
 

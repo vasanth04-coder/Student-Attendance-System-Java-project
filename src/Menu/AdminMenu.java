@@ -2,6 +2,7 @@ package Menu;
 
 import Helper.AttendanceHelper;
 import Model.*;
+import Model.Enum.Years;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
 
@@ -94,11 +95,12 @@ public class AdminMenu
           System.out.println(" 2. View the class Advisors by year and department");
           System.out.println(" 3. View staff pending approvals ");
           System.out.println(" 4. Approve staffs");
-          System.out.println(" 5. View below 75% students ");
-          System.out.println(" 6. Add staffs ");
-          System.out.println(" 7. Remove staffs");
-          System.out.println(" 8. Set Semester StartDate");
-          System.out.println(" 9. Set Semester EndDate");
+          System.out.println(" 5. Assign staffs to classes");
+          System.out.println(" 6. View below 75% students ");
+          System.out.println(" 7. Add staffs ");
+          System.out.println(" 8. Remove staffs");
+          System.out.println(" 9. Set Semester StartDate");
+          System.out.println(" 10. Set Semester EndDate");
           System.out.println(" 0. Exit");
 
           System.out.println("Enter the choice :");
@@ -114,24 +116,27 @@ public class AdminMenu
                   viewStaffs(staff,scan);
                   break;
               case 3:
-                  pendingApprovels();
+                  pendingApprovals(staff);
                   break;
               case 4:
-                  approvels();
+                  approvals(staff,scan);
                   break;
               case 5:
-                  viewBelow75Percentage(attendances,sem,students);
+                  assignStaffs(scan,staff);
                   break;
               case 6:
-                  addStaff(staff,scan);
+                  viewBelow75Percentage(attendances,sem,students);
                   break;
               case 7:
-                  removeStaff(staff,scan);
+                  addStaff(staff,scan);
                   break;
               case 8:
-                  stDate(scan,sem);
+                  removeStaff(staff,scan);
                   break;
               case 9:
+                  stDate(scan,sem);
+                  break;
+              case 10:
                   endDate(scan,sem);
                   break;
               case 0:
@@ -143,8 +148,25 @@ public class AdminMenu
 
   private static void viewStudents(ArrayList<Student>students,Scanner scan)
   {
-      System.out.println("Enter the year :");
-      String year = scan.nextLine();
+      Years year;
+
+      while(true)
+      {
+          System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
+
+          try
+          {
+              String y = scan.nextLine().toUpperCase().trim();
+              year = Years.valueOf(y);
+              break;
+          }
+          catch (Exception e)
+          {
+              System.out.println("Invalid input");
+          }
+      }
+
+
       Departments department;
 
       while(true)
@@ -164,7 +186,7 @@ public class AdminMenu
 
       for(Student s : students)
       {
-          if(s.getYear().equalsIgnoreCase(year) && s.getDepartment().equals(department))
+          if(s.getYear().equals(year) && s.getDepartment().equals(department))
           {
               System.out.println(s.getRegisterNumber()+" "+s.getName()+" "+s.getYear()+" "+s.getDepartment()+" "+s.getGender());
           }
@@ -173,8 +195,25 @@ public class AdminMenu
 
   private static void viewStaffs(ArrayList<Staff>staff,Scanner scan)
   {
-      System.out.println("Enter the year :");
-      String year = scan.nextLine();
+      Years year;
+
+      while(true)
+      {
+          System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
+
+          try
+          {
+              String y = scan.nextLine().toUpperCase().trim();
+              year = Years.valueOf(y);
+              break;
+          }
+          catch (Exception e)
+          {
+              System.out.println("Invalid input");
+          }
+      }
+
+
       Departments department;
 
       while(true)
@@ -194,7 +233,7 @@ public class AdminMenu
 
       for(Staff s:staff)
       {
-          if(s.getAdvisorOfYear().equalsIgnoreCase(year) && s.getAdvisorOfDepartment().equals(department))
+          if(s.getAdvisorOfYear().equals(year) && s.getAdvisorOfDepartment().equals(department))
           {
                System.out.println(s.getId()+" "+s.getName()+" "+s.getAdvisorOfYear()+" "+s.getAdvisorOfDepartment()+" "+s.getGender());
                break;
@@ -202,14 +241,128 @@ public class AdminMenu
       }
   }
 
-  private static void pendingApprovels()
+  private static void pendingApprovals(ArrayList<Staff>staff)
   {
+      boolean found = false;
 
+    for(Staff s1:staff)
+    {
+        if(!s1.isApprovel())
+        {
+            found = true;
+            System.out.println("Pending Approval "+ "ID -"+ s1.getId() +" Name - "+ s1.getName());
+        }
+    }
+    if(!found)
+    {
+        System.out.println("No Pendings Exists");
+    }
   }
 
-  private static void approvels()
+  private static void approvals(ArrayList<Staff>staff,Scanner scan)
   {
+      System.out.println("Enter the Staff id :");
+      String id = scan.nextLine();
+      boolean found = false;
 
+      for(Staff s : staff)
+      {
+          if(s.getId().equals(id))
+          {
+              found = true;
+
+              System.out.println(s.getName()+"To provide approval for this staff ? Yes (or) No");
+              String input = scan.nextLine().trim();
+
+              if(input.equalsIgnoreCase("yes"))
+              {
+              s.setApprovel(true);
+              System.out.println("Approval has been Succesfull for this Staff "+s.getName());
+              }
+              else if(input.equalsIgnoreCase("no"))
+              {
+                s.setApprovel(false);
+                System.out.println("Approval has been Rejected for this Staff "+s.getName());
+              }
+              else
+              {
+                 System.out.println("Invalid Input Enter Yes(or)No Only..") ;
+              }
+              break;
+          }
+      }
+      if(!found)
+      {
+          System.out.println("Staff not found");
+      }
+  }
+
+  private static void assignStaffs(Scanner scan,ArrayList<Staff>staff)
+  {
+      System.out.println("Enter the Staff id :");
+      String id = scan.nextLine();
+
+      boolean found = false;
+
+      for(Staff s:staff)
+      {
+          if(s.getId().equals(id))
+          {
+              found = true;
+
+              if(!s.isApprovel())
+              {
+                  System.out.println("This Staff is not Approved by you..");
+                  return;
+              }
+
+              Departments department;
+
+              while(true)
+              {
+               System.out.println("Enter the Department: ( CSE / IT / ECE / MECH / CIVIL / EEE / AGRI / AUTOMOBILE )");
+
+               try
+               {
+               String dept = scan.nextLine().toUpperCase().trim();
+               department = Departments.valueOf(dept);
+               break;
+               }
+               catch(Exception e)
+               {
+                  System.out.println(" Invalid Department! ");
+               }
+              }
+
+              Years year;
+
+              while(true)
+              {
+                  System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
+
+                  try
+                  {
+                      String y = scan.nextLine().toUpperCase().trim();
+                      year = Years.valueOf(y);
+                      break;
+                  }
+                  catch (Exception e)
+                  {
+                      System.out.println("Invalid input");
+                  }
+              }
+
+               s.setAdvisorOfDepartment(department);
+               System.out.println("Department Assingned Sucesfully for this staff " +s.getName());
+               s.setAdvisorOfClass(year);
+               System.out.println("Year Assingned Successfully for this Staff "+s.getName());
+               break;
+          }
+      }
+      if(!found)
+      {
+          System.out.println("Staffs not found ");
+      }
   }
 
   private static void viewBelow75Percentage(ArrayList<Attendance>attendances, Semester sem, ArrayList<Student>students)
@@ -236,26 +389,6 @@ public class AdminMenu
       System.out.println("Enter the password :");
       String password = scan.nextLine();
 
-      Departments department;
-
-      while(true)
-      {
-          System.out.println("Enter your Department ( CSE / IT / ECE / MECH / CIVIL / EEE / AUTOMOBILE / AGRI ) : ");
-          String dept = scan.nextLine().toUpperCase();
-          try
-          {
-              department = Departments.valueOf(dept);
-              break;
-          }
-          catch (Exception e)
-          {
-              System.out.println(" Invalid Input try again ");
-          }
-      }
-
-      System.out.println("Enter the Advisor of year: ");
-      String year = scan.nextLine();
-
       Gender gender ;
 
       while(true)
@@ -273,8 +406,9 @@ public class AdminMenu
       }
 
       }
-      Staff s = new Staff(name,id,password,department,year,gender);
-      staff.add(s);
+
+      Staff s1 = new Staff(name,id,password,gender,true);
+      staff.add(s1);
   }
 
 

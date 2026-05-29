@@ -1,5 +1,6 @@
 package Menu;
 import Model.Attendance;
+import Model.Enum.Years;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
 import Model.Semester;
@@ -99,8 +100,23 @@ public class StudentMenu
              }
          }
 
-        System.out.println("Enter Year - ( First year / Second year / Third year / Final year ) : ");
-        String year = scan.nextLine();
+         Years year;
+
+         while(true)
+         {
+             System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
+
+             try
+             {
+             String y = scan.nextLine().toUpperCase().trim();
+             year = Years.valueOf(y);
+             break;
+             }
+             catch (Exception e)
+             {
+                 System.out.println("Invalid input");
+             }
+         }
 
         Gender gender;
 
@@ -131,22 +147,17 @@ public class StudentMenu
         System.out.println("Enter yor password : ");
         String password = scan.nextLine();
 
-        boolean found = false;
-
         for (Student s : students)
         {
             if (s.getRegisterNumber().equals(registerNumber) && s.getPassword().equals(password))
             {
                 System.out.println("Login Successful");
                 studentDashboard(scan, s, attendances,sem);
-                found = true;
-                break;
+                return;
             }
         }
-        if (!found)
-        {
-            System.out.println(" Account not found ");
-        }
+
+        System.out.println(" Account not found ");
     }
 
     private static void studentDashboard(Scanner scan, Student s, ArrayList<Attendance> attendances, Semester sem)

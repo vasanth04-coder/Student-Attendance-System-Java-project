@@ -17,4 +17,11 @@ public class Enum
         EEE,
         CIVIL
     }
+    public enum Years
+    {
+        FIRST_YEAR,
+        SECOND_YEAR,
+        THIRD_YEAR,
+        FINAL_YEAR
+    }
 }

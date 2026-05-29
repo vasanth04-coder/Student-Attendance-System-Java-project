@@ -1,6 +1,7 @@
 package Model;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
+import Model.Enum.Years;
 
 public class Student
 {
@@ -8,10 +9,10 @@ public class Student
     private String password;
     private String registerNumber;
     private Departments department;
-    private String year;
+    private Years year;
     private Gender gender;
 
-    public Student(String name, String password, String registerNumber, Departments department, String year, Gender gender)
+    public Student(String name, String password, String registerNumber, Departments department, Years year, Gender gender)
     {
         this.name = name;
         this.password = password;
@@ -39,7 +40,7 @@ public class Student
     {
         return department;
     }
-    public String getYear()
+    public Years getYear()
     {
         return year;
     }
@@ -72,7 +73,7 @@ public class Student
             this.registerNumber = registerNumber;
         }
     }
-    public void setYear(String year)
+    public void setYear(Years year)
     {
         this.year = year;
     }

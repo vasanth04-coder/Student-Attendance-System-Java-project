@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 import Model.Attendance;
+import Model.Enum.Years;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
 import Model.Semester;
@@ -68,30 +69,7 @@ public class StaffMenu
         System.out.println("Enter your password : ");
         String password = scan.nextLine();
 
-        Departments department;
-
-        while(true)
-        {
-         System.out.println("Enter the department of Advisor - ( CSE / IT / ECE / MECH / CIVIL / EEE / AGRI / AUTOMOBILE ) : ");
-         String dept = scan.nextLine().toUpperCase();
-
-         try
-         {
-             department = Departments.valueOf(dept);
-             break;
-         }
-         catch (Exception e)
-         {
-             System.out.println("Invalid input Try Again..");
-         }
-
-        }
-
-        System.out.println("Enter the year of Advisor - ( First year / Second year / Third year / Final year)" );
-        String year = scan.nextLine();
-
-
-         Gender gender;
+        Gender gender;
 
          while(true)
          {
@@ -110,7 +88,9 @@ public class StaffMenu
 
          System.out.println(" Registration Succesfull ");
 
-        Staff s1 = new Staff(name,id,password,department,year,gender);
+        Staff s1 = new Staff(name,id,password,gender,false);
+
+        System.out.println("Waiting for the approvel from Admin to Login");
 
         staffs.add(s1);
     }
@@ -123,23 +103,26 @@ public class StaffMenu
        System.out.println("Enter your password : ");
        String password = scan.nextLine();
 
-       boolean found = false;
-
        for(Staff s1 : staffs)
        {
-           if(s1.getId().equals(id) && s1.getPassword().equals(password))
-           {
-               System.out.println("Login Succesfully ");
-               StaffDashboard(scan,s1,students,attendaces,sem);
-
-               found = true;
-               break;
+            if(s1.getId().equals(id) && s1.getPassword().equals(password))
+            {
+                if(!s1.isApprovel())
+                {
+                    System.out.println("Not Approved by Admin");
+                    return;
+                }
+                if(s1.getAdvisorOfDepartment()==null || s1.getAdvisorOfYear()==null)
+                {
+                    System.out.println("Not assigned class");
+                    return;
+                }
+                System.out.println("Login Succesfully ");
+                StaffDashboard(scan,s1,students,attendaces,sem);
+                return;
            }
        }
-       if(!found)
-       {
            System.out.println("Account not found");
-       }
     }
 
     private static void StaffDashboard(Scanner scan, Staff s1, ArrayList<Student>students, ArrayList<Attendance>attendances, Semester sem)
@@ -200,7 +183,7 @@ public class StaffMenu
 
         for(Student s :students)
         {
-            if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equalsIgnoreCase(s.getYear()))
+            if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equals(s.getYear()))
             {
                 studentFound = true;
 
@@ -295,10 +278,26 @@ public class StaffMenu
             }
         }
 
-        System.out.println("Enter year :");
-        String year = scan.nextLine();
+        Years year;
 
-       Gender gender;
+        while(true)
+        {
+            System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
+
+            try
+            {
+                String y = scan.nextLine().toUpperCase().trim();
+                year = Years.valueOf(y);
+                break;
+            }
+            catch (Exception e)
+            {
+                System.out.println("Invalid input");
+            }
+        }
+
+
+        Gender gender;
 
        while(true)
        {
@@ -364,7 +363,7 @@ public class StaffMenu
     {
         for(Student s:students)
         {
-            if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equalsIgnoreCase(s.getYear()))
+            if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equals(s.getYear()))
             {
               int percentage = semPercentage(attendances,sem,s);
 
