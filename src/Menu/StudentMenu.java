@@ -1,13 +1,19 @@
 package Menu;
+import Database.DBConnection;
 import Model.Attendance;
 import Model.Enum.Years;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
 import Model.Semester;
 import Model.Student;
+import Database.StudentDB;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import static Helper.AttendanceHelper.semPercentage;
 
@@ -49,39 +55,48 @@ public class StudentMenu
         }
     }
 
-
     private static void register(Scanner scan, ArrayList<Student> students)
     {
+        String registerNumber;
+
+        while (true)
+        {
+            System.out.println("Enter your registerNumber: ");
+            registerNumber = scan.nextLine();
+
+            try
+            {
+            String query = "SELECT * FROM students WHERE register_number = ?";
+
+            Connection con = DBConnection.connection();
+            PreparedStatement pst = con.prepareStatement(query);
+
+            pst.setString(1,registerNumber);
+
+            ResultSet rs = pst.executeQuery();
+
+            if(rs.next())
+            {
+                System.out.println(rs.getString("register_number") + ": This RegisterNumber Already registered ");
+                continue;
+            }
+              rs.close();
+              pst.close();
+              con.close();
+               break;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+        }
+
         System.out.println("Enter your name : ");
         String name = scan.nextLine();
 
         System.out.println("Enter your password :");          // recommended date of birth
         String password = scan.nextLine();
-
-        String registerNumber;
-
-        while (true)
-        {
-            System.out.println("Enter your registerNumber Must start with 9523 : ");
-            registerNumber = scan.nextLine();
-
-            if (registerNumber.startsWith("9523"))
-            {
-                for (Student s : students)
-                {
-                    if (s.getRegisterNumber().equals(registerNumber))
-                    {
-                        System.out.println(" This RegisterNumber is Already Registerd !");
-                        return;
-                    }
-                }
-                break;
-            }
-            else
-            {
-                System.out.println("Invalid register Number!");
-            }
-        }
 
          Departments department;
 
@@ -134,30 +149,32 @@ public class StudentMenu
                 System.out.println("Invalid input try again ");
             }
         }
-        System.out.println("Registration Successfull ");
 
-        Student s = new Student(name, password, registerNumber, department, year, gender);
-        students.add(s);
+          Student s = new Student(registerNumber,name, password, department, year, gender);
+
+          StudentDB.studentRegister(s);
+
     }
 
     private static void login(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances, Semester sem)
     {
         System.out.println("Enter your register number: ");
         String registerNumber = scan.nextLine();
-        System.out.println("Enter yor password : ");
+        System.out.println("Enter your password : ");
         String password = scan.nextLine();
 
-        for (Student s : students)
-        {
-            if (s.getRegisterNumber().equals(registerNumber) && s.getPassword().equals(password))
-            {
-                System.out.println("Login Successful");
-                studentDashboard(scan, s, attendances,sem);
-                return;
-            }
-        }
 
-        System.out.println(" Account not found ");
+        Student s  = StudentDB.studentLogin(registerNumber,password);
+
+        if(s!=null)
+        {
+            System.out.println("Login Succesfully..");
+            studentDashboard(scan, s, attendances,sem);
+        }
+        else
+        {
+            System.out.println("Student Not found");
+        }
     }
 
     private static void studentDashboard(Scanner scan, Student s, ArrayList<Attendance> attendances, Semester sem)
@@ -205,7 +222,6 @@ public class StudentMenu
             }
         }
     }
-
     private static void todayStatus(ArrayList<Attendance> attendances, Student s)
     {
         LocalDate today = LocalDate.now();
@@ -274,7 +290,7 @@ public class StudentMenu
         System.out.println(" RegisterNumber :" + s.getRegisterNumber());
         System.out.println(" Name :" + s.getName());
         System.out.println(" Department : " + s.getDepartment());
-        System.out.println(" Year " + s.getYear());
+        System.out.println(" Year  : " + s.getYear());
         System.out.println(" Gender :" + s.getGender());
     }
 

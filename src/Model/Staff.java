@@ -14,10 +14,10 @@ public class Staff
     private Departments advisorOfDepartment;
     private  Years advisorOfYear;
 
-    public Staff(String name,String id,String password,Gender gender,boolean approvel)
+    public Staff(String id,String name,String password,Gender gender,boolean approvel)
     {
-        this.name = name;
         this.id = id;
+        this.name = name;
         this.password = password;
         this.gender = gender;
         this.approvel = isApprovel();

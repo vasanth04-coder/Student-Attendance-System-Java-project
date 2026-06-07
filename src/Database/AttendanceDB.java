@@ -1,4 +1,6 @@
 package Database;
 
-public class AttendanceDB {
+public class AttendanceDB
+{
+
 }

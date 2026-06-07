@@ -1,11 +1,16 @@
 package Menu;
 
+import Database.AdminDB;
+import Database.DBConnection;
 import Helper.AttendanceHelper;
 import Model.*;
 import Model.Enum.Years;
 import Model.Enum.Gender;
 import Model.Enum.Departments;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -19,8 +24,7 @@ public class AdminMenu
       {
           System.out.println("ADMIN MENU");
           System.out.println();
-          System.out.println("1.Register");
-          System.out.println("2.Login");
+          System.out.println("1.Login");
           System.out.println("0.Logout");
 
           System.out.println("Enter your choice:");
@@ -30,10 +34,7 @@ public class AdminMenu
           switch (choice)
           {
               case 1:
-                  register(scan,admin);
-                  break;
-              case 2:
-                  login(scan,admin,students,staff,sem,attendances);
+                  login(scan,students,staff,sem,attendances);
                   break;
               case 0:
                   System.out.println("Returning to the Main menu...");
@@ -46,46 +47,29 @@ public class AdminMenu
       }
 
   }
-  private static void register(Scanner scan,ArrayList<Admin>admin)
+  private static void login(Scanner scan, ArrayList<Student>students, ArrayList<Staff>staff, Semester sem, ArrayList<Attendance>attendances)
   {
-      System.out.println("Enter your name: ");
-      String name = scan.nextLine();
-      System.out.println("Enter your id : ");
+       String  adminId = "admin123";
+       String  password = "qwer";
+
+      System.out.println("Enter your id :");
       String id = scan.nextLine();
       System.out.println("Enter your password :");
       String pass = scan.nextLine();
 
-      Admin a = new Admin(name,id,pass);
-      admin.add(a);
-  }
-
-  private static void login(Scanner scan , ArrayList<Admin>admin, ArrayList<Student>students, ArrayList<Staff>staff, Semester sem, ArrayList<Attendance>attendances)
-  {
-   System.out.println("Enter your id :");
-   String id = scan.nextLine();
-   System.out.println("Enter your password :");
-   String password = scan.nextLine();
-
-   boolean found = false;
-
-   for(Admin a:admin)
-   {
-      if(a.getId().equals(id) && a.getPassword().equals(password))
+      if(adminId.equals(id) && password.equals(pass))
       {
-          found = true;
           System.out.println("Login Succesfully ");
-          adminDashboard(scan,students,staff,a,sem,attendances);
-          break;
+          adminDashboard(scan,students,staff,sem,attendances);
       }
-   }
-   if(!found)
-   {
-       System.out.println("Account not found ");
-   }
+      else
+      {
+          System.out.println("Invalid Credentials..");
+      }
 
   }
 
-  private static void adminDashboard(Scanner scan, ArrayList<Student>students, ArrayList<Staff>staff, Admin admin, Semester sem, ArrayList<Attendance>attendances)
+  private static void adminDashboard(Scanner scan, ArrayList<Student>students, ArrayList<Staff>staff,  Semester sem, ArrayList<Attendance>attendances)
   {
       while(true)
       {
@@ -116,7 +100,7 @@ public class AdminMenu
                   viewStaffs(staff,scan);
                   break;
               case 3:
-                  pendingApprovals(staff);
+                  pendingApprovals();
                   break;
               case 4:
                   approvals(staff,scan);
@@ -241,60 +225,68 @@ public class AdminMenu
       }
   }
 
-  private static void pendingApprovals(ArrayList<Staff>staff)
+  private static void pendingApprovals()
   {
-      boolean found = false;
-
-    for(Staff s1:staff)
-    {
-        if(!s1.isApprovel())
-        {
-            found = true;
-            System.out.println("Pending Approval "+ "ID -"+ s1.getId() +" Name - "+ s1.getName());
-        }
-    }
-    if(!found)
-    {
-        System.out.println("No Pendings Exists");
-    }
+      AdminDB.pendingStaffs();
   }
 
   private static void approvals(ArrayList<Staff>staff,Scanner scan)
   {
       System.out.println("Enter the Staff id :");
       String id = scan.nextLine();
-      boolean found = false;
 
-      for(Staff s : staff)
+      try
       {
-          if(s.getId().equals(id))
-          {
-              found = true;
+          String query = "SELECT * FROM staffs WHERE id = ?";
+          Connection con = DBConnection.connection();
 
-              System.out.println(s.getName()+"To provide approval for this staff ? Yes (or) No");
-              String input = scan.nextLine().trim();
+          PreparedStatement pst = con.prepareStatement(query);
+          pst.setString(1,id);
 
-              if(input.equalsIgnoreCase("yes"))
-              {
-              s.setApprovel(true);
-              System.out.println("Approval has been Succesfull for this Staff "+s.getName());
-              }
-              else if(input.equalsIgnoreCase("no"))
-              {
-                s.setApprovel(false);
-                System.out.println("Approval has been Rejected for this Staff "+s.getName());
-              }
-              else
-              {
-                 System.out.println("Invalid Input Enter Yes(or)No Only..") ;
-              }
-              break;
-          }
+           ResultSet rs = pst.executeQuery();
+
+           boolean found = false;
+
+           if(rs.next())
+           {
+               found = true;
+
+               while (true)
+               {
+                   System.out.println("Name :" + rs.getString("name") + " To Approve this Staff ? ( Yes (or) No )");
+                   String input = scan.nextLine();
+
+                   if (input.equalsIgnoreCase("yes"))
+                   {
+                       AdminDB.approveStaffs(id);
+                       System.out.println("Approval Successfully for this Staff :" + rs.getString("name"));
+                       return;
+                   }
+                   else if (input.equalsIgnoreCase("no"))
+                   {
+                       System.out.println("Approval cancelled Successfully..");
+                       break;
+                   }
+                   else
+                   {
+                       System.out.println("Invalid input only click to Yes or No..");
+                   }
+               }
+           }
+           if(!found)
+           {
+               System.out.println("Staff Not Found");
+           }
+
+           rs.close();
+           pst.close();
+           con.close();
       }
-      if(!found)
+      catch(Exception e)
       {
-          System.out.println("Staff not found");
+          e.printStackTrace();
       }
+
   }
 
   private static void assignStaffs(Scanner scan,ArrayList<Staff>staff)

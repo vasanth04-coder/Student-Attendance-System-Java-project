@@ -1,8 +1,13 @@
 package Menu;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.Scanner;
 import java.util.ArrayList;
 
+import Database.DBConnection;
+import Database.StaffDB;
 import Model.Attendance;
 import Model.Enum.Years;
 import Model.Enum.Gender;
@@ -51,20 +56,42 @@ public class StaffMenu
 
     private static void register(Scanner scan , ArrayList<Staff>staffs)
     {
-        System.out.println("Enter your name : ");
-        String name = scan.nextLine();
-
-        System.out.println("Enter your id : ");
-        String id = scan.nextLine();
-
-        for(Staff s:staffs)
+        String id ;
+        while(true)
         {
-            if(s.getId().equals(id))
+            System.out.println("Enter your id : ");
+             id = scan.nextLine();
+
+            try
             {
-                System.out.println("This id already Registerd !");
-                return;
+                String query = "SELECT * FROM staffs WHERE id = ?";
+                Connection con = DBConnection.connection();
+                PreparedStatement pst = con.prepareStatement(query);
+
+                pst.setString(1, id);
+
+                ResultSet rs = pst.executeQuery();
+
+                if (rs.next())
+                {
+                    System.out.println(rs.getString("id")+" : This id Already Registerd");
+                    continue;
+                }
+
+                rs.close();
+                pst.close();
+                con.close();
+                break;
+            }
+
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
+
+        System.out.println("Enter your name : ");
+        String name = scan.nextLine();
 
         System.out.println("Enter your password : ");
         String password = scan.nextLine();
@@ -86,13 +113,11 @@ public class StaffMenu
             }
          }
 
-         System.out.println(" Registration Succesfull ");
+        Staff s = new Staff(id,name,password,gender,false);
 
-        Staff s1 = new Staff(name,id,password,gender,false);
+        StaffDB.staffRegister(s);
 
         System.out.println("Waiting for the approvel from Admin to Login");
-
-        staffs.add(s1);
     }
 
     private static void login(Scanner scan, ArrayList<Staff>staffs, ArrayList<Student>students, ArrayList<Attendance>attendaces, Semester sem)
@@ -103,26 +128,13 @@ public class StaffMenu
        System.out.println("Enter your password : ");
        String password = scan.nextLine();
 
-       for(Staff s1 : staffs)
+       Staff s = StaffDB.staffLogin(id,password);
+
+       if(s!=null)
        {
-            if(s1.getId().equals(id) && s1.getPassword().equals(password))
-            {
-                if(!s1.isApprovel())
-                {
-                    System.out.println("Not Approved by Admin");
-                    return;
-                }
-                if(s1.getAdvisorOfDepartment()==null || s1.getAdvisorOfYear()==null)
-                {
-                    System.out.println("Not assigned class");
-                    return;
-                }
-                System.out.println("Login Succesfully ");
-                StaffDashboard(scan,s1,students,attendaces,sem);
-                return;
-           }
+           System.out.println("Login Successfully..");
+           StaffDashboard(scan,s,students,attendaces,sem);
        }
-           System.out.println("Account not found");
     }
 
     private static void StaffDashboard(Scanner scan, Staff s1, ArrayList<Student>students, ArrayList<Attendance>attendances, Semester sem)

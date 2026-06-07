@@ -5,18 +5,18 @@ import Model.Enum.Years;
 
 public class Student
 {
+    private String registerNumber;
     private String name;
     private String password;
-    private String registerNumber;
     private Departments department;
     private Years year;
     private Gender gender;
 
-    public Student(String name, String password, String registerNumber, Departments department, Years year, Gender gender)
+    public Student(String registerNumber, String name, String password,Departments department, Years year, Gender gender)
     {
+        this.registerNumber = registerNumber;
         this.name = name;
         this.password = password;
-        this.registerNumber = registerNumber;
         this.department = department;
         this.year = year;
         this.gender = gender;
