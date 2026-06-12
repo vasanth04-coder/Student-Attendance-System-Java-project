@@ -6,7 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class StaffDB {
+public class StaffDB
+{
     public static void staffRegister(Staff s)
     {
         try
@@ -61,13 +62,12 @@ public class StaffDB {
                    System.out.println(" Your Approval Still Pending...");
                    return null;
                 }
-                if(rs.getString("advisor_department")==null && rs.getString("advisor_year")==null)
+                if(rs.getString("advisor_department") == null && rs.getString("advisor_year")==null)
                 {
                     System.out.println("Not Asssigned Class");
                     return null;
                 }
              }
-
                 else if(rs.next())
                 {
                     Staff s = new Staff(rs.getString("id"),

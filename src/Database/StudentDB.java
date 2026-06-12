@@ -69,7 +69,6 @@ public class StudentDB
             rs.close();
             pst.close();
             con.close();
-
         }
         catch (Exception e)
         {

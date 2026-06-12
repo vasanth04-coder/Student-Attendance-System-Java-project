@@ -282,6 +282,7 @@ public class AdminMenu
            pst.close();
            con.close();
       }
+
       catch(Exception e)
       {
           e.printStackTrace();
@@ -296,65 +297,57 @@ public class AdminMenu
 
       boolean found = false;
 
-      for(Staff s:staff)
+      try
       {
-          if(s.getId().equals(id))
-          {
-              found = true;
+        String query = "SELECT*FROM staffs WHERE id = ?";
+        Connection con = DBConnection.connection();
+        PreparedStatement pst = con.prepareStatement(query);
 
-              if(!s.isApprovel())
-              {
-                  System.out.println("This Staff is not Approved by you..");
-                  return;
-              }
+        pst.setString(1,id);
 
-              Departments department;
+         ResultSet rs = pst.executeQuery();
 
-              while(true)
-              {
-               System.out.println("Enter the Department: ( CSE / IT / ECE / MECH / CIVIL / EEE / AGRI / AUTOMOBILE )");
+         if(rs.next())
+         {
+             found = true;
 
-               try
-               {
-               String dept = scan.nextLine().toUpperCase().trim();
-               department = Departments.valueOf(dept);
-               break;
-               }
-               catch(Exception e)
-               {
-                  System.out.println(" Invalid Department! ");
-               }
-              }
+             if(!rs.getBoolean("approval"))
+             {
+                 System.out.println("Name : " + rs.getString("name")+
+                                     "Id : "+ rs.getString("id")+
+                                     "This staff is not Approved by You...");
+                 return;
+             }
 
-              Years year;
+             if(rs.getString("advisor_department") != null || rs.getString("advisor_year") !=null)
+             {
+                 System.out.println( "Name : " + rs.getString("name")+
+                                     "Id : "+ rs.getString("id")+
+                                     "This staff Already assigned..."+
+                                     "Class :" +rs.getString("advisor_department")+
+                                     "Year :"+rs.getString("advisor_year"));
+                 return;
+             }
 
-              while(true)
-              {
-                  System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
+             AdminDB.assignClasses(id,scan);
 
-                  try
-                  {
-                      String y = scan.nextLine().toUpperCase().trim();
-                      year = Years.valueOf(y);
-                      break;
-                  }
-                  catch (Exception e)
-                  {
-                      System.out.println("Invalid input");
-                  }
-              }
+         }
 
-               s.setAdvisorOfDepartment(department);
-               System.out.println("Department Assingned Sucesfully for this staff " +s.getName());
-               s.setAdvisorOfClass(year);
-               System.out.println("Year Assingned Successfully for this Staff "+s.getName());
-               break;
-          }
+         rs.close();
+         con.close();
       }
+
+      catch(Exception e)
+      {
+          e.printStackTrace();
+      }
+
       if(!found)
       {
-          System.out.println("Staffs not found ");
+          System.out.println("Account not found..");
       }
+
+
   }
 
   private static void viewBelow75Percentage(ArrayList<Attendance>attendances, Semester sem, ArrayList<Student>students)
