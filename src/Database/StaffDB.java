@@ -1,4 +1,6 @@
 package Database;
+import Model.Enum.Departments;
+import Model.Enum.Years;
 import Model.Enum.Gender;
 import Model.Staff;
 
@@ -51,39 +53,34 @@ public class StaffDB
 
             ResultSet rs = pst.executeQuery();
 
-            boolean found = false;
-
             if(rs.next())
             {
-                found = true;
-
                 if(!rs.getBoolean("approval"))
                 {
                    System.out.println(" Your Approval Still Pending...");
                    return null;
                 }
-                if(rs.getString("advisor_department") == null && rs.getString("advisor_year")==null)
+                if(rs.getString("advisor_department") == null || rs.getString("advisor_year")==null)
                 {
                     System.out.println("Not Asssigned Class");
                     return null;
                 }
-             }
-                else if(rs.next())
-                {
                     Staff s = new Staff(rs.getString("id"),
                                         rs.getString("name"),
                                         rs.getString("password"),
                                         Gender.valueOf(rs.getString("gender")),
                                         rs.getBoolean("approval")
                                       );
-                    return s;
-                }
 
-            if(!found)
+                  s.setAdvisorOfDepartment(Departments.valueOf(rs.getString("advisor_department")));
+                  s.setAdvisorOfClass(Years.valueOf(rs.getString("advisor_year")));
+
+                  return s;
+            }
+            else
             {
                 System.out.println("Account not found..");
             }
-
             rs.close();
             pst.close();
             con.close();

@@ -324,8 +324,8 @@ public class AdminMenu
                  System.out.println( "Name : " + rs.getString("name")+
                                      "Id : "+ rs.getString("id")+
                                      "This staff Already assigned..."+
-                                     "Class :" +rs.getString("advisor_department")+
-                                     "Year :"+rs.getString("advisor_year"));
+                                     " Class :" +rs.getString("advisor_department")+
+                                     "  Year :"+rs.getString("advisor_year"));
                  return;
              }
 

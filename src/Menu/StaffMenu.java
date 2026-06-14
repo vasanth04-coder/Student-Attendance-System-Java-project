@@ -135,6 +135,10 @@ public class StaffMenu
            System.out.println("Login Successfully..");
            StaffDashboard(scan,s,students,attendaces,sem);
        }
+       else
+       {
+          System.out.println("Login failed..");
+       }
     }
 
     private static void StaffDashboard(Scanner scan, Staff s1, ArrayList<Student>students, ArrayList<Attendance>attendances, Semester sem)
