@@ -20,7 +20,7 @@ import static Helper.AttendanceHelper.semPercentage;
 
 public class StudentMenu
 {
-    public static void studentLogin(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances, Semester sem)
+    public static void studentLogin(Scanner scan, ArrayList<Attendance> attendances, Semester sem)
     {
         while (true)
         {
@@ -39,10 +39,10 @@ public class StudentMenu
             switch (choice)
             {
                 case 1:
-                    register(scan, students);
+                    register(scan);
                     break;
                 case 2:
-                    login(scan, students, attendances,sem);
+                    login(scan,attendances,sem);
                     break;
                 case 0:
                     System.out.println(" Returning to Main menu..");
@@ -54,7 +54,7 @@ public class StudentMenu
         }
     }
 
-    private static void register(Scanner scan, ArrayList<Student> students)
+    private static void register(Scanner scan)
     {
         String registerNumber;
 
@@ -155,7 +155,7 @@ public class StudentMenu
 
     }
 
-    private static void login(Scanner scan, ArrayList<Student> students, ArrayList<Attendance> attendances, Semester sem)
+    private static void login(Scanner scan, ArrayList<Attendance> attendances, Semester sem)
     {
         System.out.println("Enter your register number: ");
         String registerNumber = scan.nextLine();

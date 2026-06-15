@@ -37,6 +37,4 @@ public class Attendance
     {
         this.present = present;
     }
-
-
 }
