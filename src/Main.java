@@ -47,7 +47,7 @@ public class Main
             switch (choice)
             {
                 case 1:
-                    StudentMenu.studentLogin(scan,students,attendances,sem);
+                    StudentMenu.studentLogin(scan,attendances,sem);
                     break;
                 case 2:
                     StaffMenu.stafflogin(scan,staffs,students,attendances,sem);

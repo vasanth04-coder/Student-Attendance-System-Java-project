@@ -93,4 +93,49 @@ public class StaffDB
         return null;
     }
 
+ public static void viewStudents(Staff s)
+ {
+    try
+    {
+    String query = "SELECT * FROM students WHERE department = ? AND student_year = ?";
+    Connection con = DBConnection.connection();
+
+    PreparedStatement pst = con.prepareStatement(query);
+
+    pst.setString(1,s.getAdvisorOfDepartment().name());
+    pst.setString(2,s.getAdvisorOfYear().name());
+
+    ResultSet rs = pst.executeQuery();
+
+    boolean found = false;
+
+    while(rs.next())
+    {
+        found = true;
+
+        System.out.println("Register Number :" +rs.getString("register_number")  +
+                           "Name :" +rs.getString("name")  +
+                           "Department :"+rs.getString("department")  +
+                           "Year :" +rs.getString("student_year")  +
+                           "Gender :"+rs.getString("gender")
+                           );
+    }
+
+    if(!found)
+    {
+        System.out.println("Records Not Found");
+    }
+
+    con.close();
+    rs.close();
+    pst.close();
+
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+    }
+ }
+
+
 }

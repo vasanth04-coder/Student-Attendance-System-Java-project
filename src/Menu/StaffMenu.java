@@ -256,16 +256,7 @@ public class StaffMenu
 
     private static void viewClassStudents(ArrayList<Student>students,Staff s1)
     {
-        System.out.println("  Name  "+"  Register Number  "+"  Department  "+"  Year  "+"     Gender  ");
-        System.out.println();
-
-        for(Student s :students)
-        {
-            if(s1.getAdvisorOfDepartment().equals(s.getDepartment()) && s1.getAdvisorOfYear().equals(s.getYear()))
-            {
-              System.out.println("  "+s.getName()+"    "+ s.getRegisterNumber()+"      " +s.getDepartment() + "       " +s.getYear()+"      "+s.getGender() );
-            }
-        }
+        StaffDB.viewStudents(s1);
     }
 
     private static void addStudent(Scanner scan,ArrayList<Student>students)
