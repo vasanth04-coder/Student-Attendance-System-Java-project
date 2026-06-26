@@ -119,12 +119,11 @@ public class StudentMenu
          while(true)
          {
              System.out.println("Enter year -: ( FIRST_YEAR / SECOND_YEAR / THIRD_YEAR / FINAL_YEAR )");
-
              try
              {
-             String y = scan.nextLine().toUpperCase().trim();
-             year = Years.valueOf(y);
-             break;
+              String y = scan.nextLine().toUpperCase().trim();
+              year = Years.valueOf(y);
+              break;
              }
              catch (Exception e)
              {
@@ -221,7 +220,7 @@ public class StudentMenu
             }
         }
     }
-    private static void todayStatus(ArrayList<Attendance> attendances, Student s)
+    private static void todayStatus(ArrayList<Attendance>attendances, Student s)
     {
         LocalDate today = LocalDate.now();
         boolean found = false;

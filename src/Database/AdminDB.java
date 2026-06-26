@@ -1,5 +1,6 @@
 package Database;
 
+import Model.Enum.Gender;
 import Model.Enum.Departments;
 import Model.Enum.Years;
 
@@ -127,6 +128,37 @@ public class AdminDB
         {
             e.printStackTrace();
         }
+    }
+
+    public static void viewStudents(Years year,Departments dept)
+    {
+       try
+       {
+           String query = " SELECT * FROM STUDENTS WHERE student_year = ? AND department = ?";
+           Connection con = DBConnection.connection();
+           PreparedStatement pst = con.prepareStatement(query);
+
+           pst.setString(1,year.name());
+           pst.setString(2,dept.name());
+
+           ResultSet rs = pst.executeQuery();
+
+           while(rs.next())
+           {
+             System.out.println("Name : " +rs.getString("name") +
+                                "RegNumber : " +rs.getString("register_number") +
+                                "Department :" +Departments.valueOf(rs.getString("department")) +
+                                "Year :" +Years.valueOf(rs.getString("student_year")) +
+                                "Gender :" + Gender.valueOf(rs.getString("gender"))
+                                 );
+
+           }
+       }
+
+       catch (Exception e)
+       {
+          e.printStackTrace();
+       }
 
     }
 }

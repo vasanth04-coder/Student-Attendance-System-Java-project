@@ -45,7 +45,6 @@ public class AdminMenu
           }
 
       }
-
   }
   private static void login(Scanner scan, ArrayList<Student>students, ArrayList<Staff>staff, Semester sem, ArrayList<Attendance>attendances)
   {
@@ -66,7 +65,6 @@ public class AdminMenu
       {
           System.out.println("Invalid Credentials..");
       }
-
   }
 
   private static void adminDashboard(Scanner scan, ArrayList<Student>students, ArrayList<Staff>staff,  Semester sem, ArrayList<Attendance>attendances)
@@ -90,6 +88,7 @@ public class AdminMenu
           System.out.println("Enter the choice :");
           int choice = scan.nextInt();
           scan.nextLine();
+
 
           switch (choice)
           {
@@ -167,14 +166,7 @@ public class AdminMenu
               System.out.println(" Invalid Input try again ");
           }
       }
-
-      for(Student s : students)
-      {
-          if(s.getYear().equals(year) && s.getDepartment().equals(department))
-          {
-              System.out.println(s.getRegisterNumber()+" "+s.getName()+" "+s.getYear()+" "+s.getDepartment()+" "+s.getGender());
-          }
-      }
+      AdminDB.viewStudents(year,department);
   }
 
   private static void viewStaffs(ArrayList<Staff>staff,Scanner scan)
@@ -196,7 +188,6 @@ public class AdminMenu
               System.out.println("Invalid input");
           }
       }
-
 
       Departments department;
 
@@ -324,8 +315,8 @@ public class AdminMenu
                  System.out.println( "Name : " + rs.getString("name")+
                                      "Id : "+ rs.getString("id")+
                                      "This staff Already assigned..."+
-                                     " Class :" +rs.getString("advisor_department")+
-                                     "  Year :"+rs.getString("advisor_year"));
+                                     "Class :" +rs.getString("advisor_department")+
+                                     "Year :"+rs.getString("advisor_year"));
                  return;
              }
 
